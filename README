@@ -1,0 +1,76 @@
+# Architecture
+
+### Phase 1 - Packet Capture
+1. SETUP
+	- Call `pcap_create(const char *source, char *errbuff)` to open a handle for a live capture
+		- source is the network interface name, ex. `eth0` or `en0` 
+		- error buffer stores error message if the call fails
+		- this function returns a pointer to a pcap_t struct
+	- Activate the handle with `pcap_activate(pcap_t *p)` to tell pcap what device we are sniffing on
+		- if the function fails, close the handle with `pcap_close()`
+2. FINDING THE INTERFACE
+	- Call `pcap_findalldevs()` to get a list of available network interfaces
+		- Use `pcap_freealldevs()`
+		- `pcap_lookupdev()` returns the first device on the list that is not a loopback network interface 
+3. OPEN THE DEVICE
+	- Call `pcap_datalink()` to determine the type of link-layer the device provides and to use that type when processing the packet contents
+		- *NOTE: * can call `pcap_t *pcap_open_live(char *device, int snaplen, int promisc, int to_ms,char *ebuf)` INSTEAD of `pcap_create()` and `pcap_activate()` to create a sniffing session
+4. (OPTIONAL) CREATING A RULE SET
+	- `pcap_compile()` to compile filter expression to a pseudo-machine-language code program
+	- `pcap_freecode` to free a filter program
+	- `pcap_setfilter` to get a filter for a pcap_t
+	- use a char pointer to set the rule
+		- ex. `char *rule = "tcp and port 443";` 
+5. PACKET SNIFFING LOOP
+	- Call `pcap_loop()` to sniff multiple packets
+		- (this step is the most complicated and needs to be reviewed with the proper documentation) 
+6. FINAL THOUGHTS
+	- ***Always make sure to properly handle any errors that occur from the use of any of these functions - DONT keep running a program if the function failed**
+	- ***DONT FORGET to use*** `pcap_close()` ***when finished sniffing***
+
+### Phase 2 - Paceket Parsing
+- parsing consists of using a callback function (`packet_handler()`) inside of `pcap_loop()` to parse the packets
+
+`packet_handler()` should do the following:
+1. Declare the containers:
+
+		const struct sniff_ethernet 
+		const struct sniff_ip *ip; 
+		const struct sniff_tcp *tcp; 
+		const char *payload; 
+
+		u_int size_ip;
+		u_int size_tcp;
+2.  Typecast:
+
+		ethernet = (struct sniff_ethernet*)(packet);
+		ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
+		size_ip = IP_HL(ip)*4;
+		if (size_ip < 20) {
+			printf("   * Invalid IP header length: %u bytes\n", size_ip);
+			return;
+		}
+		tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
+		size_tcp = TH_OFF(tcp)*4;
+		if (size_tcp < 20) {
+			printf("   * Invalid TCP header length: %u bytes\n", size_tcp);
+			return;
+		}
+		payload = (u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
+	DONT FORGET TO ERROR CHECK
+
+- Once we declare the containers and do our typecasting, we can pass along the packet info to our phase 3 functions.
+
+
+### Phase 3 - Threat Detector
+
+### Phase 4 - Output Summary
+
+# Testing
+
+### Phase 1
+- finding_interface() and setup() testing was conducted in unit_test.c
+- filter_set() was tested in terminal:
+    - Commands:
+        - sudo ./sniffer
+        - sudo ./sniffer 'icmp'
