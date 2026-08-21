@@ -2,9 +2,12 @@
 #define PARSER_H
 
 #include <pcap/pcap.h>
-// #include <sys/types.h>
-// #include <netinet/in.h>
+#include <sys/types.h>
+#include <netinet/in.h>
 
+typedef unsigned char  u_char;
+typedef unsigned short u_short;
+typedef unsigned int   u_int;
 
 /* Ethernet addresses are 6 bytes */
 #define ETHER_ADDR_LEN	6

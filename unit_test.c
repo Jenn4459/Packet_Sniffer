@@ -98,10 +98,20 @@ void setup_test_legit()
     printf("Setup test 'legit' passed!\n");
     pcap_freealldevs(alldevs);
     free(device);
+    pcap_close(set);
 }
 
 
-
+// packet_handler() tests
+void handler_test_1()
+{
+    char errbuff[PCAP_ERRBUF_SIZE];
+    pcap_t *handle = pcap_open_offline("test_traffic.pcap", errbuff);
+    assert(handle != NULL);
+    int loop = pcap_loop(handle, 0, packet_handler, NULL);
+    assert(loop >= 0);
+    pcap_close(handle);
+}
 
 
 /* --------------- MAIN --------------- */
@@ -118,5 +128,7 @@ int main()
     // setup_test_null();
     // setup_test_fake();
     setup_test_legit();
+    
+    handler_test_1();
     return 0;
 }

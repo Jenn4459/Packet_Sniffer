@@ -63,6 +63,8 @@
 
 
 ### Phase 3 - Threat Detector
+1. Checking flags
+	- TCP flags defined in sniff_tcp and can be checked against the incoming TCP header
 
 ### Phase 4 - Output Summary
 
@@ -74,3 +76,8 @@
     - Commands:
         - sudo ./sniffer
         - sudo ./sniffer 'icmp'
+
+### Phase 2
+- callback function (packet_handler) tested in unit_test.c
+	- testing file was generated from the command `sudo tcpdump -i eth0 -w test_traffic.pcap tcp and ip` and passed into the packet_handle function
+	- results were printed to the terminal which included ethernet, ip, tcp, and payload sizes and payload data
