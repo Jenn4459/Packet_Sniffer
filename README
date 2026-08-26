@@ -65,6 +65,38 @@
 ### Phase 3 - Threat Detector
 1. Checking flags
 	- TCP flags defined in sniff_tcp and can be checked against the incoming TCP header
+	- Payload flags combinations to look for:
+		- Xmas attack: FIN, PSH, URG
+		- Null scan: check for lack of any flags at all
+		- SYN-FIN combo
+2. Malicious payload signatures
+	- use `memmem()` to search the payload for malicious signatures
+	- malicious signatures to look for:
+		- SQL Injection (1)
+			- `"' OR '1'='1'"`
+		- XSS (2)
+			- `"<script>alert(1)</script>"`
+			- `<img src=x onerror=alert(1)>`
+			- `<img src=x onerror=alert1>`
+			- https://medium.com/@Udeshna/most-common-xss-payloads-10699faabaad
+		- Remote Code Execution (3)
+			- `"/bin/sh"` or `"/bin/bash"`
+			- `"$(cat /etc/passwd)"`
+			- ` "`" ` <-- point proven trying to format this
+			- `"; "`
+		- Buffer Overflow
+			- `"\x90\x90\x90\x90"` or `"\x41\x41\x41\x41"`
+	- Hardcode the signatures into the signatures functions and use memmem() to find if there are any instances of them inside the payloads
+3. Suspicious packets rate (*rates for this were determined by GoogleAI)
+	- RST attack
+		- Check for massive spike in RST flags
+		- (maybe check when calculating the pps, what percentage of packages have RST flag on)
+	- FIN flood
+		- check if only the FIN flag is on (maybe also check if the previous packet also only had the FIN flag on?)
+	- use pcap_stats() to track the pps 
+		- in pcap_loop, keep a count to keep track of packages
+		- call pcap_stats(), subtract from count, and divide by the time difference (since last check) to get pps, check if pps is acceptable time
+		- determine acceptable pps range and compare with current pps
 
 ### Phase 4 - Output Summary
 
