@@ -82,7 +82,6 @@ bool check_rst_rates(const struct sniff_tcp *tcp)
             buffer[last] = false;
         }
         float res = (float)rst_count / count;
-        printf("rst_count: %d, count: %d", rst_count, count);
         if (res >= rate) {
             return true;
         }
@@ -97,7 +96,6 @@ bool check_rst_rates(const struct sniff_tcp *tcp)
             buffer[last] = false;
         }
         float res = (float)rst_count / 60.0f;
-        printf("rst_count: %d, count: 60", rst_count);
         if (res >= rate) {
             return true;
         }

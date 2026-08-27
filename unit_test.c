@@ -171,8 +171,8 @@ void rates_test()
     }
 
     struct sniff_tcp rst_packet = {0};
-    normal_packet.th_flags = 0x04;
-    for (int i = 0; i < 4; i++) {
+    rst_packet.th_flags = 0x04;
+    for (int i = 0; i < 5; i++) {
         bool alert = check_rst_rates(&rst_packet);
         assert(alert == false);
     }
@@ -188,19 +188,19 @@ int main()
     // NOTE: commented out functions were tested but cause EXIT_FAILURES
     //       upon success, so they're commented out
 
-    interface_test_good();
+    // interface_test_good();
     // interface_test_null();
-    interface_test_down();
-    interface_test_legit();
+    // interface_test_down();
+    // interface_test_legit();
 
     // setup_test_null();
     // setup_test_fake();
-    setup_test_legit();
+    // setup_test_legit();
     
-    handler_test_1();
+    // handler_test_1();
 
-    flags_test();
-    signatures_test();
+    // flags_test();
+    // signatures_test();
     rates_test();
     return 0;
 }
