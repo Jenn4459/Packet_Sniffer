@@ -17,12 +17,13 @@
     struct sniff_ip;
     struct sniff_tcp;
 
-    char* threat_checks(const struct sniff_ip *ip, const struct sniff_tcp *tcp, 
+    void threat_checks(const struct sniff_ip *ip, const struct sniff_tcp *tcp, 
         const u_char *payload, u_int payload_len, 
         const struct sniff_ethernet *ethernet);
 
     int check_flags(const struct sniff_tcp *tcp);
     int check_signatures(const u_char *payload, u_int payload_len);
-    bool check_rates(const struct sniff_tcp *tcp);
+    bool check_rst_rates(const struct sniff_tcp *tcp);
+    bool check_syn_rates(const struct sniff_tcp *tcp);
 
 #endif

@@ -33,7 +33,6 @@
 
 `packet_handler()` should do the following:
 1. Declare the containers:
-
 		const struct sniff_ethernet 
 		const struct sniff_ip *ip; 
 		const struct sniff_tcp *tcp; 
@@ -42,7 +41,6 @@
 		u_int size_ip;
 		u_int size_tcp;
 2.  Typecast:
-
 		ethernet = (struct sniff_ethernet*)(packet);
 		ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
 		size_ip = IP_HL(ip)*4;
@@ -58,13 +56,14 @@
 		}
 		payload = (u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
 	DONT FORGET TO ERROR CHECK
-
-- Once we declare the containers and do our typecasting, we can pass along the packet info to our phase 3 functions.
+- Once we declare the containers and do our typecasting, we can pass along the 
+  packet info to our phase 3 functions.
 
 
 ### Phase 3 - Threat Detector
 1. Checking flags
-	- TCP flags defined in sniff_tcp and can be checked against the incoming TCP header
+	- TCP flags defined in sniff_tcp and can be checked against the incoming 
+	  TCP header
 	- Payload flags combinations to look for:
 		- Xmas attack: FIN, PSH, URG
 		- Null scan: check for lack of any flags at all
@@ -111,5 +110,24 @@
 
 ### Phase 2
 - callback function (packet_handler) tested in unit_test.c
-	- testing file was generated from the command `sudo tcpdump -i eth0 -w test_traffic.pcap tcp and ip` and passed into the packet_handle function
-	- results were printed to the terminal which included ethernet, ip, tcp, and payload sizes and payload data
+	- testing file was generated from the command `sudo tcpdump -i eth0 -w 
+	  test_traffic.pcap tcp and ip` and passed into the packet_handle function
+	- results were printed to the terminal which included ethernet, ip, tcp, 
+	  and payload sizes and payload data
+		- 	printf("\n================ PACKET TEST ================\n");
+			printf("Ethernet Header Size : %d bytes (Fixed)\n", SIZE_ETHERNET);
+			printf("IP Header Size       : %u bytes\n", size_ip);
+			printf("TCP Header Size      : %u bytes\n", size_tcp);
+			printf("Calculated Payload   : %u bytes\n", payload_len);
+			printf("Payload Data (Text)  : ");
+			for (u_int i = 0; i < payload_len; i++) {
+				if (payload[i] >= 32 && payload[i] <= 126) {
+					printf("%c", payload[i]);
+				} else {
+					printf(".");
+				}
+			}
+			printf("\n=============================================\n");
+
+### Phase 3
+- check rates test is failing

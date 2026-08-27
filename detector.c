@@ -1,30 +1,31 @@
 #include "detector.h"
 #include "parser.h"
+#include "output.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-// i will need to return something, but not sure what yet
-char* threat_checks(const struct sniff_ip *ip, const struct sniff_tcp *tcp, 
+void threat_checks(const struct sniff_ip *ip, const struct sniff_tcp *tcp, 
         const u_char *payload, u_int payload_len, 
         const struct sniff_ethernet *ethernet)
 {
     (void)ip; (void)ethernet;
-
     int flags = check_flags(tcp);
     int sig = check_signatures(payload, payload_len);
-    bool rates = check_rates(tcp);
+    bool rst = check_rst_rates(tcp);
+    bool syn = check_syn_rates(tcp);
+    output_results(flags, sig, rst, syn);
 }
 
 int check_flags(const struct sniff_tcp *tcp)
 {
-    if (tcp->th_flags & TH_FIN & TH_PUSH & TH_URG) {
+    if ((tcp->th_flags & (TH_FIN | TH_PUSH | TH_URG)) == (TH_FIN | TH_PUSH | TH_URG)) {
         return 1;
     }
     if (tcp->th_flags == 0) {
         return 2;
     }
-    if (tcp->th_flags & TH_SYN & TH_FIN) {
+    if ((tcp->th_flags & (TH_SYN | TH_FIN)) == (TH_SYN | TH_FIN)) {
         return 3;
     }
     return 0;
@@ -64,28 +65,82 @@ int check_signatures(const u_char *payload, u_int payload_len)
     return 0;
 }
 
-bool check_rates(const struct sniff_tcp *tcp)
+bool check_rst_rates(const struct sniff_tcp *tcp)
 {
-    // not using time but a rate in which rst flags are 
-    // present in a window of 60 packets
-    // using a circular buffer to adjust the window, but 
-    // having issues with the initial setup of the array
     const float rate = 1.0f / 10.0f;
-    bool buffer[60];
-    bool count = 0;
-    static int first = 0;
+    static bool buffer[60];
+    static int rst_count = 0;
+    static int count = 0;
     static int last = 0;
 
-    // if (last ) {
-
-    // }
-    if (tcp->th_flags & TH_RST) {
-        buffer[last] = true;
+    count++;
+    if (count <= 60) {
+        if (tcp->th_flags & TH_RST) {
+            rst_count++;
+            buffer[last] = true;
+        } else {
+            buffer[last] = false;
+        }
+        float res = (float)rst_count / count;
+        printf("rst_count: %d, count: %d", rst_count, count);
+        if (res >= rate) {
+            return true;
+        }
     } else {
-        buffer[last] = false;
+        if (buffer[last]) {
+            rst_count--;
+        }
+        if (tcp->th_flags & TH_RST) {
+            rst_count++;
+            buffer[last] = true;
+        } else {
+            buffer[last] = false;
+        }
+        float res = (float)rst_count / 60.0f;
+        printf("rst_count: %d, count: 60", rst_count);
+        if (res >= rate) {
+            return true;
+        }
     }
-
     last = (last + 1) % 60;
+    return false;
+}
 
+bool check_syn_rates(const struct sniff_tcp *tcp)
+{
+    const float rate = 0.60;
+    static bool buffer[1000];
+    static int syn_count = 0;
+    static int count = 0;
+    static int last = 0;
+
+    count++;
+    if (count <= 1000) {
+        if (tcp->th_flags & TH_SYN) {
+            syn_count++;
+            buffer[last] = true;
+        } else {
+            buffer[last] = false;
+        }
+        float res = (float)syn_count / count;
+        if (res >= rate) {
+            return true;
+        }
+    } else {
+        if (buffer[last]) {
+            syn_count--;
+        }
+        if (tcp->th_flags & TH_SYN) {
+            syn_count++;
+            buffer[last] = true;
+        } else {
+            buffer[last] = false;
+        }
+        float res = (float)syn_count / 1000.0f;
+        if (res >= rate) {
+            return true;
+        }
+    }
+    last = (last + 1) % 1000;
     return false;
 }

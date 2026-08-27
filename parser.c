@@ -37,24 +37,4 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *h,
     // Calling phase 3
     u_int payload_len = ntohs(ip->ip_len) - (size_ip + size_tcp);
     threat_checks(ip, tcp, payload, payload_len, ethernet);
-
-    // // --- TEST OUTPUT BLOCK ---
-    // printf("\n================ PACKET TEST ================\n");
-    // // Print out the header lengths you found
-    // printf("Ethernet Header Size : %d bytes (Fixed)\n", SIZE_ETHERNET);
-    // printf("IP Header Size       : %u bytes\n", size_ip);
-    // printf("TCP Header Size      : %u bytes\n", size_tcp);
-    // printf("Calculated Payload   : %u bytes\n", payload_len);
-
-    // // Print the raw payload characters safely so it doesn't break your terminal
-    // printf("Payload Data (Text)  : ");
-    // for (u_int i = 0; i < payload_len; i++) {
-    //     // Only print printable ASCII characters; otherwise print a dot
-    //     if (payload[i] >= 32 && payload[i] <= 126) {
-    //         printf("%c", payload[i]);
-    //     } else {
-    //         printf(".");
-    //     }
-    // }
-    // printf("\n=============================================\n");
 }
