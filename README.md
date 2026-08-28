@@ -83,6 +83,7 @@ The program is written in 4 phases
 		- Null scan: check for lack of any flags at all
 		- SYN-FIN combo
 2. Malicious payload signatures
+	- NOTE: I am aware that most packets are encrypted nowadays, but I decided to write this part of the program for learning / showcasing purposes
 	- use `memmem()` to search the payload for malicious signatures
 	- malicious signatures to look for:
 		- SQL Injection (1)
