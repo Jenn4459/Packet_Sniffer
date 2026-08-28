@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 #include "assert.h"
 
 #include "capture.h"
@@ -161,7 +162,7 @@ void signatures_test()
     printf("All signature tests passed!\n");
 }
 
-void rates_test()
+void rst_rates_test()
 {
     struct sniff_tcp normal_packet = {0};
     normal_packet.th_flags = 0x10;
@@ -179,6 +180,49 @@ void rates_test()
     bool alert = check_rst_rates(&rst_packet);
     assert(alert == true);
     
+}
+
+void syn_rates_test()
+{
+    struct sniff_tcp normal_packet = {0};
+    normal_packet.th_flags = 0x10;
+    for (int i = 0; i < 400; i++) {
+        bool alert = check_syn_rates(&normal_packet);
+        assert(alert == false);
+    }
+
+    struct sniff_tcp syn_packet = {0};
+    syn_packet.th_flags = 0x02;
+    for (int i = 0; i < 599; i++) {
+        bool alert = check_syn_rates(&syn_packet);
+        assert(alert == false);
+    }
+    bool alert = check_syn_rates(&syn_packet);
+    assert(alert == true);
+    
+}
+
+void output_test()
+{
+    // flags
+    output_results(1, 0, false, false);
+    output_results(2, 0, false, false);
+    output_results(3, 0, false, false);
+
+    // signatures
+    output_results(0, 1, false, false);
+    output_results(0, 2, false, false);
+    output_results(0, 3, false, false);
+
+    // rates
+    output_results(0, 0, true, false);
+    output_results(0, 0, false, true);
+
+    // multiple
+    output_results(1, 3, true, false);
+
+    // everything
+    output_results(1, 1, true, true);
 }
 
 
@@ -201,6 +245,9 @@ int main()
 
     // flags_test();
     // signatures_test();
-    rates_test();
+    // rst_rates_test();
+    // syn_rates_test();
+
+    output_test();
     return 0;
 }

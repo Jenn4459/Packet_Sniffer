@@ -1,3 +1,19 @@
+/**************************************************************
+ *
+ *                     sniffer.c
+ *
+ *     Author:  Jennifer Perez 
+ *     Date:    Aug, 2026
+ *
+ *     Summary
+ *
+ *     The entry point for the packet sniffer application. It 
+ *     processes command line arguments, discovers local 
+ *     network interfaces, detecting only non-loopback interfaces
+ *     as well as configuring any network filters the user passes
+ *     in.
+ *
+ **************************************************************/
 #include "capture.h"
 #include "parser.h"
 #include "detector.h"
@@ -22,7 +38,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE); 
     }
 
-    //phase 1 -- put this is separate function later
+    // phase 1 - setup, finding interfaces, and filtering
     pcap_if_t *alldevs = NULL;
     char errbuff[PCAP_ERRBUF_SIZE];
     if (pcap_findalldevs(&alldevs, errbuff) == -1) {
@@ -36,7 +52,10 @@ int main(int argc, char *argv[])
     pcap_freealldevs(alldevs);
     pcap_t *handle = setup(device);
     filter_set(handle, filter);
-    sniff_loop(handle); //memory errors (handler unfinished tho)
+
+    // all other processes happen w/in sniff_loop
+    sniff_loop(handle);
+    
     free(device);
     pcap_close(handle);
 

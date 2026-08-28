@@ -21,6 +21,9 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *h,
     // Typecasting
     ethernet = (struct sniff_ethernet*)(packet);
     ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
+    if (ip->ip_p != 6) { 
+        return;
+    }
     size_ip = IP_HL(ip)*4;
     if (size_ip < 20) {
         printf("   * Invalid IP header length: %u bytes\n", size_ip);
