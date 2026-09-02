@@ -1,9 +1,45 @@
+/******************************************************************************
+ *
+ *                     detector.c
+ *
+ *     Author:  Jennifer Perez 
+ *     Date:    Aug, 2026
+ *
+ *     Summary
+ *
+ *     This file is called from detector.c and is the file phase (phase 4)
+ *     of the program. It checks the active threats and classifies them as 
+ *     either MEDIUM or CRITICAL, appending the threat summaries to a 
+ *     threat log file.
+ *
+ *****************************************************************************/
 #include "output.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
+/**************************** output_results *******************************
+ *
+ * This function outputs the results of the detector.c functions. If all
+ * threats were detected, a CRITICAL threat is output, if 1-3 threats were
+ * found, a MEDIUM threat is output, and if no threats were found, nothing 
+ * is output
+ *
+ * Parameters:
+ *      int flags: attack code for flag attacks
+ *      int sig: attack code for signature attacks
+ *      bool rst: boolean for a rst flood attack
+ *      bool syn: boolean for a syn flood attack
+ *
+ * Return: nothing, appends to a file and the program ends upon Ctrl-C in 
+ *         terminal
+ *
+ * Expects: 
+ *      
+ * Notes: 
+ *      
+ **************************************************************************/
 void output_results(int flags, int sig, bool rst, bool syn)
 {
     if (flags !=0 && sig != 0 && rst && syn) {

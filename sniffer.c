@@ -24,7 +24,26 @@
 #include <stdlib.h>
 #include <pcap/pcap.h>
 
-
+/********************************** main **********************************
+ *
+ * The main function of the program. It processes user input, phase 1 
+ * functions, the main control loop, and frees any memory allocated inside
+ * of it
+ *
+ * Parameters:
+ *      int argc: the number of arguments provided on the command line
+ *      char *argv[]: char pointers to the names of the command line arguments
+ *
+ * Return: EXIT_SUCCESS if program makes it all the way to the end with no
+ *         issues (EXIT_FAILURE is called in main and in any .c file in which
+ *         an error occurs)
+ *
+ * Expects: arguments to not exceed 2 (name of program and filter)
+ *      
+ * Notes:
+ *      the filter function in capture.c handles filter validity and is not
+ *      a concern for main
+ ************************************************************************/
 int main(int argc, char *argv[])
 {
     // checking for the proper arguments
@@ -32,7 +51,7 @@ int main(int argc, char *argv[])
     if (argc == 2) {
         filter = argv[1]; //check for valid filter in the filter function
     } else if (argc == 1) {
-        filter = "";
+        filter = ""; 
     } else if (argc > 2) {
         printf("Too many arguments!\n");
         exit(EXIT_FAILURE); 
@@ -59,5 +78,5 @@ int main(int argc, char *argv[])
     free(device);
     pcap_close(handle);
 
-    return 0;
+    return EXIT_SUCCESS;
 }

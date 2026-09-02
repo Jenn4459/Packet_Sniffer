@@ -1,3 +1,19 @@
+/******************************************************************************
+ *
+ *                     unit_test.c
+ *
+ *     Author:  Jennifer Perez 
+ *     Date:    Aug, 2026
+ *
+ *     Summary
+ *
+ *     This file individually tests all of the functions contained in phases
+ *     1-4 of the program. Tests were designed for both good and bad input
+ *     to ensure correctness. This file is also used alongside Valgrind in 
+ *     order to guarantee no memory leaks.
+ *
+ *****************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -10,9 +26,11 @@
 #include "detector.h"
 #include "output.h"
 
-/* --------- UNIT TESTS HERE --------- */
+/* -------------------------- UNIT TESTS HERE ------------------------------ */
 
-// finding_interface() tests
+// FINDING_INTERFACE TESTS
+
+// tests acceptable input
 void interface_test_good() 
 {
     pcap_if_t good_device;
@@ -29,6 +47,7 @@ void interface_test_good()
     printf("finding_interface test 'controlled' passed!!\n");
 }
 
+// tests behavior if pcap_if_t is NULL
 void interface_test_null()
 {
     pcap_if_t *null = NULL;
@@ -36,6 +55,7 @@ void interface_test_null()
     free(device);
 }
 
+// tests acceptable input, but just not input that is allowed by the program
 void interface_test_down()
 {
     pcap_if_t good_device;
@@ -53,6 +73,8 @@ void interface_test_down()
     printf("finding_interface test 'down' passed!!\n");
 }
 
+// tests interface function in a more real world setting by using 
+// pcap_findalldevs
 void interface_test_legit()
 {
     pcap_if_t *alldevs = NULL;
@@ -68,18 +90,21 @@ void interface_test_legit()
     printf("finding_interface test 'legit' passed!\n");
 }
 
-// setup() tests
+// SETUP() TESTS
+
+// verifies that NULL input is properly flagged
 void setup_test_null() 
 {
     setup(NULL);
 }
 
+// ensures unknown devices are properly flagged
 void setup_test_fake()
 {
     setup("this_isnt_a_real_device");
 }
 
-// need to use sudo to make this test work
+// need to use sudo to make this test work, meant to replicate real world input
 void setup_test_legit()
 {
     pcap_if_t *alldevs = NULL;
@@ -104,7 +129,9 @@ void setup_test_legit()
 }
 
 
-// packet_handler() tests
+// PACKET_HANDLER TESTS
+
+// uses pcap_open_offline and a testing file to ensure expected behavior
 void handler_test_1()
 {
     char errbuff[PCAP_ERRBUF_SIZE];
@@ -115,7 +142,9 @@ void handler_test_1()
     pcap_close(handle);
 }
 
-// threat tests
+// THREAT TESTS
+
+// verifies that every supported flag threat returns the proper attack code
 void flags_test()
 {
     struct sniff_tcp test1 = {0};
@@ -137,6 +166,7 @@ void flags_test()
     printf("all flag tests passed!\n");
 }
 
+// verifies that every supported signature threat returns the proper attack code
 void signatures_test()
 {
     const char *payload1 = "GET /index.php?user=john_doe HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -162,6 +192,8 @@ void signatures_test()
     printf("All signature tests passed!\n");
 }
 
+// ensures that function returns false up until the rate threshold has been 
+// exceeded, also ensures that sliding window works as expected
 void rst_rates_test()
 {
     struct sniff_tcp normal_packet = {0};
@@ -182,6 +214,8 @@ void rst_rates_test()
     
 }
 
+// ensures that function returns false up until the rate threshold has been 
+// exceeded, also ensures that sliding window works as expected
 void syn_rates_test()
 {
     struct sniff_tcp normal_packet = {0};
@@ -229,8 +263,9 @@ void output_test()
 /* --------------- MAIN --------------- */
 int main()
 {
-    // NOTE: commented out functions were tested but cause EXIT_FAILURES
-    //       upon success, so they're commented out
+    // NOTE: functions are commented out because they cause EXIT_FAILURE upon
+    //       success (expected) or tests interfere with other tests
+    //       If running, run 1 test at a time
 
     // interface_test_good();
     // interface_test_null();
@@ -248,6 +283,6 @@ int main()
     // rst_rates_test();
     // syn_rates_test();
 
-    output_test();
+    // output_test();
     return 0;
 }

@@ -1,3 +1,18 @@
+/******************************************************************************
+ *
+ *                      parser.h
+ *
+ *      Author: Jennifer Perez
+ *      Date: Aug, 2026
+ *
+ *                      Summary
+ *
+ *      This file contains the macro definitions, constant variables, and 
+ *      protocol structure layouts (Ethernet, IP, and TCP headers) utilized 
+ *      in parser.c. It defines the function prototype for the packet_handler()
+ *      callback execution loop.
+ *
+ *****************************************************************************/
 #ifndef PARSER_H
 #define PARSER_H
 

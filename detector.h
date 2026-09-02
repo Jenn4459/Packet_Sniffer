@@ -1,3 +1,17 @@
+/******************************************************************************
+ *
+ *                      detector.h
+ *
+ *      Author: Jennifer Perez
+ *      Date: Aug, 2026
+ *
+ *                      Summary
+ *
+ *      This file contains the macro definitions, typedef'd data types, struct
+ *      definitions, and function prototypes utilized in detector.c to handle 
+ *      the Phase 3 threat detection engine.
+ *
+ *****************************************************************************/
 #ifndef DETECTOR_H
 #define DETECTOR_H
 

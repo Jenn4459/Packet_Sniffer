@@ -33,9 +33,7 @@ The program is written in 4 phases
 		- ex. `char *rule = "tcp and port 443";` 
 5. PACKET SNIFFING LOOP
 	- Call `pcap_loop()` to sniff multiple packets
-		- (this step is the most complicated and needs to be reviewed with the 
-		  proper documentation) 
-6. FINAL THOUGHTS
+		- Requires packet_handler callback function to properly handle packets
 	- ***Always make sure to properly handle any errors that occur from the use 
 	  of any of these functions - DONT keep running a program if the function 
 	  failed**
